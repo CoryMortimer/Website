@@ -6,7 +6,7 @@ import data from './data'
 const MarkdownLayout = ({ children }) => {
   return (
     <MDXProvider
-      components={...data}
+      components={{ ...data }}
     >
       {children}
     </MDXProvider>
