@@ -3,6 +3,7 @@ module.exports = {
     title: `Cory Mortimer Martin`,
     description: `Personal site for Cory.`,
     author: `Cory`,
+    siteUrl: 'https://www.corymortimer.com',
   },
   plugins: [
     'gatsby-plugin-top-layout',
@@ -30,6 +31,8 @@ module.exports = {
         },
       },
     },
+    'gatsby-plugin-robots-txt',
+    'gatsby-plugin-sitemap',
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,
     {
