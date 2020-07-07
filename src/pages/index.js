@@ -25,7 +25,7 @@ const Index = () => {
 
   return (
     <>
-      <SEO title="Home" />
+      <SEO title="Profile" />
       <Container maxWidth="md">
         <Grid container spacing={2}>
           <Grid item xs={12}><ProfileHeader /></Grid>
