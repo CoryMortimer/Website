@@ -6,6 +6,7 @@ import { Link, graphql } from 'gatsby'
 import Container from '@material-ui/core/Container'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
+import { Disqus, CommentCount } from 'gatsby-plugin-disqus'
 
 import Grid from '../components/Grid'
 import SEO from '../components/seo'
@@ -23,8 +24,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const MarkdownBlogLayout = ({ data: { mdx: { body, frontmatter: { image, date, title }}}}) => {
+const MarkdownBlogLayout = ({
+  data: {
+    mdx: { body, frontmatter: { image, date, title }},
+    site: { siteMetadata: { siteUrl }}
+  },
+  location: { pathname },
+}) => {
   const { imgStyles, styledLink } = useStyles()
+
+  const disqusConfig = {
+    url: `${siteUrl}${pathname}`,
+  }
 
   return (
     <>
@@ -51,6 +62,10 @@ const MarkdownBlogLayout = ({ data: { mdx: { body, frontmatter: { image, date, t
               </MDXProvider>
             </Container>
           </Grid>
+          <Grid item xs={12}>
+            <CommentCount config={disqusConfig} />
+            <Disqus config={disqusConfig} />
+          </Grid>
         </Grid>
       </Container>
     </>
@@ -74,6 +89,11 @@ export const query = graphql`
             }
           }
         }
+      }
+    }
+    site {
+      siteMetadata {
+        siteUrl
       }
     }
   }
