@@ -1,7 +1,32 @@
-/**
- * Implement Gatsby's Node APIs in this file.
- *
- * See: https://www.gatsbyjs.org/docs/node-apis/
- */
+const path = require('path')
 
-// You can delete this file if you're not using it
+exports.createPages = async ({ graphql, actions: { createPage }, reporter }) => {
+  const result = await graphql(`
+    query {
+      allFile(filter: {sourceInstanceName: {eq: "blogPosts"}}, sort: {fields: childMdx___frontmatter___date, order: DESC}) {
+        edges {
+          node {
+            childMdx {
+              id
+            }
+            relativePath
+          }
+        }
+      }
+    }
+  `)
+
+  if (result.errors) {
+    reporter.panicOnBuild('🚨  ERROR: Loading "createPages" query')
+  }
+
+  const posts = result.data.allFile.edges
+  posts.forEach(({ node }) => {
+    console.log('node.childMdx.id', node.childMdx.id)
+    createPage({
+      path: `/blog/${node.relativePath.split('.')[0]}`,
+      component: path.resolve(`./src/markdown-layout/MarkdownBlogLayout.jsx`),
+      context: { id: node.childMdx.id },
+    })
+  })
+}

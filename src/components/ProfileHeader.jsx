@@ -19,18 +19,18 @@ const useStyles = makeStyles({
   },
 })
 
-const ProfileHeader = () => {
+const ProfileHeader = ({ title = 'Cory Mortimer Martin', image }) => {
   const { container, profileImage, } = useStyles()
 
   return (
     <>
       <div className={container}>
-        <TitleImage />
+        {image || <TitleImage />}
         <div className={profileImage}>
           <ProfileImage />
         </div>
       </div>
-      <Typography align="center" variant="h3" component="h1">Cory Mortimer Martin</Typography>
+      <Typography align="center" variant="h3" component="h1">{title}</Typography>
     </>
   )
 }

@@ -24,10 +24,27 @@ module.exports = {
       },
     },
     {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `blogPosts`,
+        path: `${__dirname}/src/blog-posts`,
+        ignore: [`**/\*\.js`],
+      },
+    },
+    {
       resolve: `gatsby-plugin-mdx`,
       options: {
         defaultLayouts: {
+          blogPosts: require.resolve("./src/markdown-layout/MarkdownBlogLayout.jsx"),
           default: require.resolve("./src/markdown-layout/MarkdownLayout.jsx"),
+          gatsbyRemarkPlugins: [
+            {
+              resolve: `gatsby-remark-images`,
+              options: {
+                maxWidth: 1280,
+              },
+            },
+          ],
         },
       },
     },
