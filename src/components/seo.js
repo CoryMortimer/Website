@@ -14,7 +14,7 @@ import { useLocation } from '@reach/router'
 import MetaImage from '../images/meta-image.jpeg'
 
 function SEO({ description, lang, meta, title }) {
-  const location = useLocation()
+  const { pathname } = useLocation()
   const { site } = useStaticQuery(
     graphql`
       query {
@@ -23,16 +23,21 @@ function SEO({ description, lang, meta, title }) {
             title
             description
             author
+            siteUrl
           }
         }
       }
     `
   )
 
+  const shouldAddTrailingSlash = (link) => {
+    return link[link.length - 1] !== '/' && link.indexOf('.') === -1
+  }
+
   const metaDescription = description || site.siteMetadata.description
-  const href = location.href
-  const canonical = href + (href[href.length - 1] === '/' ? '' : '/')
-  const imageUrl = `${location.protocol}//${location.host}${MetaImage}`
+  const urlPrefix = site.siteMetadata.siteUrl
+  const canonical = urlPrefix + pathname + (shouldAddTrailingSlash(pathname) ? '/' : '')
+  const imageUrl = `${urlPrefix}${MetaImage}`
 
   return (
     <Helmet

@@ -22,7 +22,6 @@ exports.createPages = async ({ graphql, actions: { createPage }, reporter }) => 
 
   const posts = result.data.allFile.edges
   posts.forEach(({ node }) => {
-    console.log('node.childMdx.id', node.childMdx.id)
     createPage({
       path: `/blog/${node.relativePath.split('.')[0]}`,
       component: path.resolve(`./src/markdown-layout/MarkdownBlogLayout.jsx`),
