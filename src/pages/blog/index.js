@@ -40,7 +40,7 @@ const Index = ({ data }) => {
               {blogPosts.map(({ node: { relativePath, childMdx: { id, frontmatter: { image, subtitle, title, date }}}}) => {
                 return (
                   <Grid key={id} item sm={6} xs={12}>
-                    <Link className={styledLink} to={`/blog/${relativePath.split('.')[0]}`}>
+                    <Link className={styledLink} to={`/blog/${relativePath.split('.')[0]}/`}>
                       <Card>
                         <CardActionArea>
                           <CardMedia

@@ -5,12 +5,16 @@
  * See: https://www.gatsbyjs.org/docs/use-static-query/
  */
 
-import React from "react"
-import PropTypes from "prop-types"
-import { Helmet } from "react-helmet"
-import { useStaticQuery, graphql } from "gatsby"
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Helmet } from 'react-helmet'
+import { useStaticQuery, graphql } from 'gatsby'
+import { useLocation } from '@reach/router'
+
+import MetaImage from '../images/meta-image.jpeg'
 
 function SEO({ description, lang, meta, title }) {
+  const location = useLocation()
   const { site } = useStaticQuery(
     graphql`
       query {
@@ -26,9 +30,18 @@ function SEO({ description, lang, meta, title }) {
   )
 
   const metaDescription = description || site.siteMetadata.description
+  const href = location.href
+  const canonical = href + (href[href.length - 1] === '/' ? '' : '/')
+  const imageUrl = `${location.protocol}//${location.host}${MetaImage}`
 
   return (
     <Helmet
+      link={[
+        {
+          rel: 'canonical',
+          href: canonical,
+        }
+      ]}
       htmlAttributes={{
         lang,
       }}
@@ -52,8 +65,20 @@ function SEO({ description, lang, meta, title }) {
           content: `website`,
         },
         {
+          property: `og:url`,
+          content: canonical,
+        },
+        {
+          property: `og:image`,
+          content: imageUrl,
+        },
+        {
           name: `twitter:card`,
           content: `summary`,
+        },
+        {
+          property: `twitter:url`,
+          content: canonical,
         },
         {
           name: `twitter:creator`,
@@ -62,6 +87,10 @@ function SEO({ description, lang, meta, title }) {
         {
           name: `twitter:title`,
           content: title,
+        },
+        {
+          property: `twitter:image`,
+          content: imageUrl,
         },
         {
           name: `twitter:description`,

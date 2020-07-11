@@ -1,8 +1,8 @@
 module.exports = {
   siteMetadata: {
     title: `Cory Mortimer Martin`,
-    description: `Personal site for Cory.`,
-    author: `Cory`,
+    description: `The personal site for Cory Mortimer Martin containing information about him and a blog.`,
+    author: `Cory Mortimer Martin`,
     siteUrl: 'https://www.corymortimer.com',
   },
   plugins: [
