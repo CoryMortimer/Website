@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     height: 350,
   },
   styledLink: {
-    color: theme.palette.primary.main,
+    color: theme.palette.secondary.main,
     position: 'absolute',
     top: 360,
   },

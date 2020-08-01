@@ -1,0 +1,132 @@
+---
+title: "What is a Promise?"
+subtitle: "Information from my perspective of Promises."
+date: "August 1, 2020"
+image: ../images/promise.jpg
+tags: ["software", "javascript"]
+---
+
+#### tl;dr
+Promises are a mechanism for code to be executed asynchronously in JavaScript.
+
+#### Background
+The [JavaScript event loop](https://youtu.be/8aGhZQkoFbQ) allows us to write asynchronous code. We need a nice, friendly way to interact with the asynchronicity of the language.
+
+#### Asynchronous highlights
+##### Callback functions
+One of the first ways to interact with asynchronous JavaScript code is through a callback function. A callback function is a function that is passed as a parameter to another function to be executed. In terms of asynchronicity, this callback function is usually executed at a later time, with or without data. One example of a callback function being called asynchronously is the `setTimeout` function.
+```
+const sayHello = () => console.log(‘Hello!’)
+setTimeout(sayHello, 1000)
+```
+Here, we tell the `setTimeout` function to execute the `sayHello` function in about one second.[^1] From what we know about the event loop, we know the `setTimeout` function is non-blocking, meaning that code can continue to execute while `sayHello` is waiting to be called.
+
+Another example can be taken from the [node-postgres](https://www.npmjs.com/package/pg) package. Straight from their [documentation](https://node-postgres.com/features/queries), we see an example of a callback function:
+```
+client.query('SELECT NOW() as now', (err, res) => {
+  if (err) {
+    console.log(err.stack)
+  } else {
+    console.log(res.rows[0])
+  }
+})
+
+```
+The code above calls the `query` method on a `client` that is connected to our PostgreSQL database with a SQL query string and a callback function with two parameters: `err` and `res`. This code will query the database and then execute our callback function when there is a response from the database. The `err` parameter represents an error object. If an error object is present, we log the stack trace to the console. If an error object is not present, we assume that the query successfully ran and we log the first result of the `res` object.
+
+You may be seeing less and less of this syntax as time goes on. One of the major critiques of callbacks is that calling many functions that take callbacks in a row can be hard to follow. For example, take a look at this contrived example:
+```
+getAsyncBook(‘title’, (bookError, book) => {
+  if (!bookError) {
+    getAsyncAuthor(book.author, (authorError, author) => {
+      if (!authorError) {
+        getAsyncAuthorAddressCoordinates(author.address, (coodinatesError, coordinates) => {
+          if (!coordinatesError) {
+            console.log(coordinates)
+          } else {
+            console.log(coordinatesError)
+          }
+        })
+      } else {
+        console.log(authorError)
+      }
+    })
+  } else {
+    console.log(bookError)
+  }
+})
+```
+This can become an unwieldy task to understand the code. Can we figure out how to do this in a better way?
+
+##### Promises
+The need for making a cleaner asynchronous interface paved the path for Promises. Promises were not necessarily the next asynchronous mechanism to come along after callbacks[^2], but a mechanism we’ll see more often than others. From [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), the “Promise object represents the eventual completion (or failure) of an asynchronous operation, and its resulting value.” As we see from the description, a Promise is a mechanism for notifying us of the completion of an asynchronous action. Let’s take a look at the previous contrived example, except with using Promises:
+```
+getAsyncBook(‘title’)
+  .then((book) => getAsyncAuthor(book.author))
+  .then((author) => getAsyncAuthorAddressCoordinates(author.address))
+  .then((coordinates) => console.log(coordinates))
+  .catch((error) => console.log(error))
+```
+If we knew nothing about Promises, we can see at first glance, this code is significantly smaller and more compact. I would argue that readability has improved significantly as well. Let’s dive into how this works.
+
+In the callback example, we assumed that our example methods (like `getAsyncBook`) would execute the function we pass to it when it gets data. In the Promise example, our example methods return a Promise object.
+
+A Promise can be created simply in your browser’s console.
+```
+const myPromise = new Promise((resolve, reject) => {
+  if (true) {
+    resolve(‘The value is true’)
+  } else {
+    reject(‘The value is false’)
+  }
+})
+```
+Here is our very first Promise! In order to create a new Promise, we call `new Promise` and pass in a function that takes two parameters that are functions that we are calling `resolve` and `reject`. If we call the `resolve` function with a value, the Promise is fulfilled and it will pass the value to the function that we pass to the `then` function on the Promise like so:
+```
+myPromise.then((result) => console.log(result))
+// logs ‘The value is true’
+```
+It similarly works for the `catch` function. When we call the `reject` function, the Promise is rejected and we have the following:
+```
+const myPromise = new Promise((resolve, reject) => {
+  if (false) {
+    resolve(‘The value is true’)
+  } else {
+    reject(‘The value is false’)
+  }
+})
+…
+myPromise.catch((result) => console.log(result))
+// logs ‘The value is false
+```
+
+Now, you may be thinking, “Well that makes sense but you have multiple `.then` functions in a row!” Yes, I do! The value that is returned from a `then` function is a Promise itself. This enables us to chain on one Promise to create a linear type structure in our code. For another contrived example:
+```
+getAsyncBook(‘title’)
+  .then((book) => book.author)
+  .then((author) => console.log(author))
+  // what is logged is the value of book.author, which we are assuming to be a string
+```
+Even if a non Promise is returned from a `then` function, it is treated as a Promise that is fulfilled with the data that is returned, thus giving us the ability to chain.
+
+Another thought you may have is “There is only one catch function to handle all of the error statements!” That is also correct. Any Promise in the rejected state will execute the nearest rejected code. In the contrived example, it was the last statement. Here’s an example of handling the rejections case by case:
+```
+getAsyncBook(‘title’)
+  .then((book) => getAsyncAuthor(book.author), (error) => console.log(error))
+  .then((author) => getAsyncAuthorAddressCoordinates(author.address), (error) => console.log(error))
+  .then((coordinates) => console.log(coordinates), (error) => console.log(error))
+```
+The `then` function can take another function that gets executed if the Promise is in a rejected state. Let’s say the `getAsyncBook` function returns a rejected function, then the first `console.log(error)` statement will be executed. But, as we learned from above, anything that is returned from a `then` statement will return a resolved Promise. That means that the `getAsyncAuthorAddressCoordinates` function will be called with `undefined`, resulting in an error where the last function in the last `then` function will be executed.
+
+The `Promise` object has some methods that make creating Promises easier:
+```
+Promise.resolve(‘resolved value’)
+Promise.reject(‘rejected value’)
+```
+As you may have guessed, calling `Promise.resolve` with a value will create a resolved Promise that can be chained with `then` method where calling `Promise.reject` with a value will create a rejected Promise that can be chained with the `catch` or `then(_, fn)` method.
+#### Closing thoughts
+I personally enjoy working with Promises. I think they are fun, unique, and interesting to work with. I am excited to see what the next evolution of Promises are.
+
+[^1]: The time passed to `setTimeout` isn’t guaranteed to run in exactly one second. It is guaranteed to run in [at least one second.](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#Reasons_for_delays_longer_than_specified)
+
+[^2]: [jQuery Deferred Objects](https://medium.com/dailyjs/asynchronous-adventures-in-javascript-promises-1e0da27a3b4) was one of the inspirations of the Promise architecture.
