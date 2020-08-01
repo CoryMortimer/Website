@@ -13,6 +13,7 @@ const NavigationTabs = () => {
   return (
     <Tabs
       value={tabValue}
+      component="nav"
       onChange={(event, newValue) => {
         if (newValue !== 2) {
           setTabValue(newValue)
