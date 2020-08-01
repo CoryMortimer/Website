@@ -77,7 +77,7 @@ export default Index
 
 export const query = graphql`
   query {
-    allFile(filter: {sourceInstanceName: {eq: "blogPosts"}}, sort: {fields: childMdx___frontmatter___date, order: DESC}) {
+    allFile(filter: {sourceInstanceName: {eq: "blogPosts"}}, sort: {fields: childMdx___frontmatter___date, order: ASC}) {
       edges {
         node {
           childMdx {
